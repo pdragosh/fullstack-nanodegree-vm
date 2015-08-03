@@ -13,14 +13,30 @@ def connect():
 
 def deleteMatches():
     """Remove all the match records from the database."""
-
+    conn = connect()
+    c = conn.cursor()
+    c.execute("DELETE FROM matches")
+    conn.commit()
+    conn.close()
 
 def deletePlayers():
     """Remove all the player records from the database."""
+    conn = connect()
+    c = conn.cursor()
+    c.execute("DELETE FROM players")
+    conn.commit()
+    conn.close()
 
 
 def countPlayers():
     """Returns the number of players currently registered."""
+    conn = connect()
+    c = conn.cursor()
+    c.execute("SELECT COUNT(*) FROM players")
+    row = c.fetchone()
+    conn.commit()
+    conn.close()
+    return row[0]
 
 
 def registerPlayer(name):
@@ -32,6 +48,11 @@ def registerPlayer(name):
     Args:
       name: the player's full name (need not be unique).
     """
+    conn = connect()
+    c = conn.cursor()
+    c.execute("INSERT INTO players (name) VALUES (%s)", (name,))
+    conn.commit()
+    conn.close()
 
 
 def playerStandings():
@@ -47,7 +68,13 @@ def playerStandings():
         wins: the number of matches the player has won
         matches: the number of matches the player has played
     """
-
+    conn = connect()
+    c = conn.cursor()
+    c.execute("SELECT * FROM standings")
+    rows = c.fetchall()
+    conn.commit()
+    conn.close()
+    return rows
 
 def reportMatch(winner, loser):
     """Records the outcome of a single match between two players.
@@ -56,6 +83,11 @@ def reportMatch(winner, loser):
       winner:  the id number of the player who won
       loser:  the id number of the player who lost
     """
+    conn = connect()
+    c = conn.cursor()
+    c.execute("INSERT INTO matches (winner, loser) VALUES (%s, %s)", (winner, loser))
+    conn.commit()
+    conn.close()
  
  
 def swissPairings():
@@ -73,5 +105,8 @@ def swissPairings():
         id2: the second player's unique id
         name2: the second player's name
     """
-
-
+    pairings = []
+    standings = playerStandings()
+    for i,k in zip(standings[0::2], standings[1::2]):
+        pairings.append([i[0], i[1], k[0], k[1]])
+    return pairings 
