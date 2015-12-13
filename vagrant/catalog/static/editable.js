@@ -1,6 +1,6 @@
 $(document).ready(function() {
     //toggle `popup` / `inline` mode
-    $.fn.editable.defaults.mode = 'popup';     
+    $.fn.editable.defaults.mode = 'inline';     
     
     //make username editable
     $('#category_name').editable();
@@ -24,4 +24,24 @@ $(document).ready(function() {
         ,url: '/post'
         */
     });
+                  
+    $(function() {
+                    $( "#button-edit" ).button({
+                                            icons: {
+                                            primary: "ui-icon-locked"
+                                            },
+                                            text: false
+                                            });
+                    $( "#button-7" ).button({
+                                            disabled:true
+                                            });
+                    $( "#button-8" ).button({
+                                            icons: {
+                                            primary: "ui-icon-gear",
+                                            secondary: "ui-icon-triangle-1-s"
+                                            }
+                                            });
+    });
+              
+                  
 });

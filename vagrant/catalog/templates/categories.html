@@ -2,54 +2,47 @@
 {% block content %}
 {% include "header.html" %}
 
-<div id="page-wrapper">
-    <div id="page" class="container">
-        <div class="title">
-            {% if not session.username %}
-            <h2>Welcome to our Catalog</h2>
-            {% else %}
-            <h2>Welcome to our Catalog {{session.username}}</h2>
-            {% endif %}
-        </div>
-        {% if not session.username %}
-        <p>Please feel free to browse our catalog. If you'd like to change anything, then please click the <a href="/login">Login</a> button.</p>
-        {% else %}
-        <p>Please feel free to browse our catalog and make changes. You can <a href="/logout">logout</a> at any time.</p>
-        {% endif %}
-    </div>
-</div>
 
 <div id="wrapper">
     <div id="two-column" class="container">
         <div><span class="arrow-down"></span></div>
         <div id="tbox1">
             <div class="title">
-                <h2>Categories</h2>
+                <h2>Categories <a href="/category/new"> <i class="ui-icon ui-icon-plusthick" style="float:right"></i></a></h2>
             </div>
             {% for category in categories %}
                 {% if not session.username %}
                     <p>{{ category.name }}</p>
                 {% else %}
-                    <p>
-                    <a href="/catalog/{{ category.id}}/edit" id="category_name_{{ category.id }}" data-type="text" data-placement="right" data-title="Enter Category Name" pk="{{ category.id }}">{{ category.name }}</a>
-                    </p>
-                    <script>
-                        $('#category_name_{{ category.id }}').editable({
-                            type: 'text',
-                            pk: {{ category.id }},
-                            url: '/catalog/{{ category.id}}/edit/'
-                        })
-                    </script>
+                <nobr>
+                <a href="/category/{{ category.id}}/items">
+                {{ category.name }}
+                </a>
+                <a href="/catalog/{{ category.id}}/delete">
+                    <i class="ui-icon ui-icon-trash" style="float:right">  </i>
+                </a>
+                <a href="/catalog/{{ category.id}}/edit">
+                    <i class="ui-icon ui-icon-wrench" style="float:right">  </i>
+                </a>
+                </nobr>
+                <br>
                {% endif %}
             {% endfor %}
         </div>
         
+        {% if items is not none %}
         <div id="tbox2">
             <div class="title">
-                <h2>Most Recent Items</h2>
+                {% if category is not none %}
+                <h2>{{ category.name }} Items</h2>
+                {% else %}
+                    <h2>Most Recent</h2>
+                {% endif %}
             </div>
             <p>TODO</p>
         </div>
+        {% endif %}
+
     </div>
 </div>
 

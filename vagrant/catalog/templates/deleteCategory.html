@@ -1,15 +1,23 @@
-<html>
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
 
-<head>
-<link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}">
-	</head>
-
-
-<body>
-<div class = 'pane'>
-<h1>Create A New Category</h1>
-
-</div>
-</body>
-
-</html>
+<div id="page-wrapper">
+    <div id="page" class="container">
+        <div class="title">
+            <h3>Are you sure you want to delete Category {{ category.name }}??</h3>
+            <P>
+            <h2>
+                
+                <form action="/catalog/{{ category.id }}/delete/" method = "post">
+                    <div class="form">
+                            <div class="padding-bottom"></div>
+                            <button type="submit" d="submit" type="submit">Delete</button>
+                            </div>
+                </form>
+                
+                <p><a href="/catalog">cancel</a></p>
+                </div>
+    </div>
+    
+    {% endblock %}

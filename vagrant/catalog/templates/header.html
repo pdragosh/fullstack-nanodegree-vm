@@ -1,3 +1,19 @@
+<div id="page-wrapper">
+    <div id="page" class="container">
+        <div class="title">
+            {% if not session.username %}
+            <h2>Welcome to our Catalog</h2>
+            {% else %}
+            <h2>Welcome to our Catalog {{session.username}}</h2>
+            {% endif %}
+        </div>
+        {% if not session.username %}
+        <p>Please feel free to browse our catalog. If you'd like to change anything, then please click the <a href="/login">Login</a> button.</p>
+        {% else %}
+        <p>Please feel free to browse our catalog and make changes. You can <a href="/logout">logout</a> at any time.</p>
+        {% endif %}
+    </div>
+</div>
 
 <!--
 <div id="header" class="container">

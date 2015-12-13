@@ -188,23 +188,22 @@ def gdisconnect():
 
 @app.route('/catalog/<int:category_id>/items/JSON')
 def categoryItemJSON(category_id):
-    restaurant = session.query(Category).filter_by(id=category_id).one()
+#    restaurant = session.query(Category).filter_by(id=category_id).one()
     items = session.query(Item).filter_by(
         category_id=category_id).all()
     return jsonify(Item=[i.serialize for i in items])
 
 
-@app.route('/catalog/<int:category_id>/menu/<int:menu_id>/JSON')
-def menuItemJSON(restaurant_id, menu_id):
-    Menu_Item = session.query(MenuItem).filter_by(id=menu_id).one()
-    return jsonify(Menu_Item=Menu_Item.serialize)
+@app.route('/catalog/<int:category_id>/item/<int:item_id>/JSON')
+def itemJSON(category_id, item_id):
+    item = session.query(Item).filter_by(id=item_id).one()
+    return jsonify(item=item.serialize)
 
 
-@app.route('/restaurant/JSON')
-def restaurantsJSON():
-    restaurants = session.query(Restaurant).all()
-    return jsonify(restaurants=[r.serialize for r in restaurants])
-
+@app.route('/categories/JSON')
+def categoryJSON():
+    category = session.query(Category).all()
+    return jsonify(categories=[r.serialize for r in category])
 
 # Show all categories
 @app.route('/')
@@ -213,17 +212,17 @@ def showCatalog():
     categories = session.query(Category).all()
     #TODO filter most recent
     mostrecent = session.query(Item).all()
-    return render_template('categories.html', categories=categories, mostrecent=mostrecent)
+    return render_template('categories.html', categories=categories, items=mostrecent, category=None)
 
-@app.route('/restaurant/new/', methods=['GET', 'POST'])
-def newRestaurant():
+@app.route('/category/new/', methods=['GET', 'POST'])
+def newCategory():
     if request.method == 'POST':
-        newRestaurant = Restaurant(name=request.form['name'])
-        session.add(newRestaurant)
+        newCategory = Category(name=request.form['name'])
+        session.add(newCategory)
         session.commit()
-        return redirect(url_for('showRestaurants'))
+        return redirect(url_for('showCatalog'))
     else:
-        return render_template('newRestaurant.html')
+        return render_template('newCategory.html')
 
 @app.route('/catalog/<int:category_id>/edit/', methods=['GET', 'POST'])
 def editCategory(category_id):
@@ -238,33 +237,30 @@ def editCategory(category_id):
         return render_template(
             'editCategory.html', category=editedCategory)
 
-@app.route('/restaurant/<int:restaurant_id>/delete/', methods=['GET', 'POST'])
-def deleteRestaurant(restaurant_id):
-    restaurantToDelete = session.query(
-        Restaurant).filter_by(id=restaurant_id).one()
+@app.route('/catalog/<int:category_id>/delete/', methods=['GET', 'POST'])
+def deleteCategory(category_id):
+    categoryToDelete = session.query(
+        Category).filter_by(id=category_id).one()
     if request.method == 'POST':
-        session.delete(restaurantToDelete)
+        session.delete(categoryToDelete)
         session.commit()
         return redirect(
-            url_for('showRestaurants', restaurant_id=restaurant_id))
+            url_for('showCatalog', category_id=category_id))
     else:
         return render_template(
-            'deleteRestaurant.html', restaurant=restaurantToDelete)
-    # return 'This page will be for deleting restaurant %s' % restaurant_id
+            'deleteCategory.html', category=categoryToDelete)
 
-
-# Show a restaurant menu
-@app.route('/restaurant/<int:restaurant_id>/')
-@app.route('/restaurant/<int:restaurant_id>/menu/')
-def showMenu(restaurant_id):
-    restaurant = session.query(Restaurant).filter_by(id=restaurant_id).one()
-    items = session.query(MenuItem).filter_by(
-        restaurant_id=restaurant_id).all()
-    return render_template('menu.html', items=items, restaurant=restaurant)
-    # return 'This page is the menu for restaurant %s' % restaurant_id
+# Show items from a category
+@app.route('/category/<int:category_id>/')
+@app.route('/category/<int:category_id>/items/')
+def showItems(category_id):
+    categories = session.query(Category).all()
+    category = session.query(Category).filter_by(id=category_id).one()
+    items = session.query(Item).filter_by(
+        category_id=category_id).all()
+    return render_template('categories.html', categories=categories, items=items, category=category) 
 
 # Create a new menu item
-
 
 @app.route(
     '/restaurant/<int:restaurant_id>/menu/new/', methods=['GET', 'POST'])
