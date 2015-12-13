@@ -1,0 +1,26 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+
+<div id="page-wrapper">
+    <div id="page" class="container">
+        <div class="title">
+            <h3>Enter New Item Information for {{ category.name }}</h3>
+            <P>
+            <form action="/catalog/{{ category.id }}/items/new/" method = "post">
+				<div class="form">
+                    <label for="title" style="text-align:center">Title</label>
+                    <input type ="text" maxlength="100" id="title" name="title">
+                    <label for="description" style="text-align:center">Description</label>
+                    <input type ="text" maxlength="100" id="description" name="description">
+                    <div class="padding-bottom"></div>
+                    <p>
+                    <button type="submit" d="submit" type="submit">Create</button>
+                </div>
+            </form>
+
+        <p><a href="/catalog">cancel</a></p>
+    </div>
+</div>
+
+{% endblock %}

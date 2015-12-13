@@ -229,7 +229,6 @@ def editCategory(category_id):
     editedCategory = session.query(
         Category).filter_by(id=category_id).one()
     if request.method == 'POST':
-        print request.form
         if request.form['value']:
             editedCategory.name = request.form['value']
             return redirect(url_for('showCatalog'))
@@ -260,66 +259,48 @@ def showItems(category_id):
         category_id=category_id).all()
     return render_template('categories.html', categories=categories, items=items, category=category) 
 
-# Create a new menu item
-
 @app.route(
-    '/restaurant/<int:restaurant_id>/menu/new/', methods=['GET', 'POST'])
-def newMenuItem(restaurant_id):
+    '/catalog/<int:category_id>/items/new/', methods=['GET', 'POST'])
+def newItem(category_id):
+    category = session.query(Category).filter_by(id=category_id).one()
     if request.method == 'POST':
-        newItem = MenuItem(name=request.form['name'], description=request.form[
-                           'description'], price=request.form['price'], course=request.form['course'], restaurant_id=restaurant_id)
+        newItem = Item(title=request.form['title'], description=request.form[
+                           'description'], category_id=category_id)
         session.add(newItem)
         session.commit()
 
-        return redirect(url_for('showMenu', restaurant_id=restaurant_id))
+        return redirect(url_for('showCatalog', category=category))
     else:
-        return render_template('newmenuitem.html', restaurant_id=restaurant_id)
+        return render_template('newItem.html', category=category)
 
-    return render_template('newMenuItem.html', restaurant=restaurant)
-    # return 'This page is for making a new menu item for restaurant %s'
-    # %restaurant_id
-
-# Edit a menu item
-
-
-@app.route('/restaurant/<int:restaurant_id>/menu/<int:menu_id>/edit',
+@app.route('/catalog/<int:category_id>/items/<int:item_id>/edit/',
            methods=['GET', 'POST'])
-def editMenuItem(restaurant_id, menu_id):
-    editedItem = session.query(MenuItem).filter_by(id=menu_id).one()
+def editItem(category_id, item_id):
+    category = session.query(Category).filter_by(id=category_id).one()
+    editedItem = session.query(Item).filter_by(id=item_id).one()
     if request.method == 'POST':
-        if request.form['name']:
-            editedItem.name = request.form['name']
-        if request.form['description']:
-            editedItem.description = request.form['name']
-        if request.form['price']:
-            editedItem.price = request.form['price']
-        if request.form['course']:
-            editedItem.course = request.form['course']
+        if request.form['name'] == 'item_title':
+            editedItem.title = request.form['value']
+        if request.form['name'] == 'item_description':
+            editedItem.description = request.form['value']
         session.add(editedItem)
         session.commit()
-        return redirect(url_for('showMenu', restaurant_id=restaurant_id))
+        return redirect(url_for('showCatalog', category=category))
     else:
-
         return render_template(
-            'editmenuitem.html', restaurant_id=restaurant_id, menu_id=menu_id, item=editedItem)
+            'editItem.html', category=category, item=editedItem)
 
-    # return 'This page is for editing menu item %s' % menu_id
-
-# Delete a menu item
-
-
-@app.route('/restaurant/<int:restaurant_id>/menu/<int:menu_id>/delete',
+@app.route('/catalog/<int:category_id>/items/<int:item_id>/delete',
            methods=['GET', 'POST'])
-def deleteMenuItem(restaurant_id, menu_id):
-    itemToDelete = session.query(MenuItem).filter_by(id=menu_id).one()
+def deleteItem(category_id, item_id):
+    category = session.query(Category).filter_by(id=category_id).one()
+    itemToDelete = session.query(Item).filter_by(id=item_id).one()
     if request.method == 'POST':
         session.delete(itemToDelete)
         session.commit()
-        return redirect(url_for('showMenu', restaurant_id=restaurant_id))
+        return redirect(url_for('showCatalog', category_id=category_id))
     else:
-        return render_template('deleteMenuItem.html', item=itemToDelete)
-    # return "This page is for deleting menu item %s" % menu_id
-
+        return render_template('deleteItem.html', item=itemToDelete, category=category)
 
 if __name__ == '__main__':
     app.debug = True

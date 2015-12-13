@@ -1,0 +1,36 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+
+<div id="page-wrapper">
+    <div id="page" class="container">
+        <div class="title">
+            <h3>Click To Edit Item Information</h3>
+            <P>
+                <a href="#" id="item_title" data-type="text" data-placement="right" data-title="Enter Item  Title">{{ item.title }}</a>
+                
+                <script>
+                    $('#item_title').editable({
+                                                 type: 'text',
+                                                 pk: {{ item.id }},
+                                                 url: '/catalog/{{ category.id }}/items/{{ item.id }}/edit/',
+                                                 title: 'Enter Item Title'
+                                                 });
+                </script>
+                <p>
+                <a href="#" id="item_description" data-type="text" data-placement="right" data-title="Enter Item  Description">{{ item.description }}</a>
+                
+                <script>
+                    $('#item_description').editable({
+                                              type: 'text',
+                                              pk: {{ item.id }},
+                                              url: '/catalog/{{ category.id }}/items/{{ item.id }}/edit/',
+                                              title: 'Enter Item Description'
+                                              });
+                    </script>
+        </div>
+        <p><a href="/catalog">Done</a>.</p>
+    </div>
+</div>
+
+{% endblock %}
