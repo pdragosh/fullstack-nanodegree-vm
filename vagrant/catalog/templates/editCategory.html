@@ -1,0 +1,29 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+
+<div id="page-wrapper">
+    <div id="page" class="container">
+        <div class="title">
+            <h3>Editing {{ category.name }}</h3>
+        </div>
+        <p><a href="/catalog">Done</a>.</p>
+    </div>
+</div>
+
+<div id="wrapper">
+    
+    <a href="#" id="category_name" data-type="text" data-placement="right" data-title="Enter Category Name">{{ category.name }}</a>
+    
+    <script>
+    $('#category_name').editable({
+    type: 'text',
+    pk: {{ category.id }},
+    url: '/catalog/{{ category.id }}/edit/',
+    title: 'Enter Category Name'
+    });
+    </script>
+
+</div>
+
+{% endblock %}
