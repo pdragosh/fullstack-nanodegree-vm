@@ -1,24 +1,21 @@
-from flask import Flask, render_template, request, redirect, jsonify, url_for
+from flask import Flask, render_template, request, redirect, jsonify, url_for, make_response
 from flask import session as login_session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from setup_database import Base, Category, Item
 from functools import wraps
-
-import uuid
-
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
-import httplib2
-import json
-from flask import make_response
-import requests
+import uuid, httplib2, json, requests
 
 #
-# Create our flas application
+# Create our flask application
 #
 app = Flask(__name__)
 
+#
+# For authentication with google+
+#
 CLIENT_ID = json.loads(
     open('client_secrets.json', 'r').read())['web']['client_id']
 APPLICATION_NAME = "Catalog Web Client"
@@ -36,6 +33,9 @@ session = DBSession()
 # Helper methods
 #
 
+#
+# Helps determine if the user is actually logged in
+#
 def login_required(wrapped_function):
     @wraps(wrapped_function)
     def wrapper(*args, **kwargs):
@@ -45,18 +45,32 @@ def login_required(wrapped_function):
     return wrapper
 
 #
-# Cleans up anything in the session 
-# that we save for Google+ Login
+# Cleans up general login information
 #
-def cleanUpGoogle():
-    if 'access_token' in login_session:
-        del login_session['access_token'] 
-    if 'gplus_id' in login_session:
-        del login_session['gplus_id']
+def cleanupLogin():
     if 'username' in login_session:
         del login_session['username']
     if 'email' in login_session:
         del login_session['email']
+    if 'login_social' in login_session:
+        del login_session['login_social']
+
+#
+# Cleans up anything in the session
+# that we save for Google+ Login
+#
+def cleanUpGoogle():
+    #
+    # Clean up general login infor
+    #
+    cleanupLogin()
+    #
+    # Clean up google+ specific information
+    #
+    if 'access_token' in login_session:
+        del login_session['access_token'] 
+    if 'gplus_id' in login_session:
+        del login_session['gplus_id']
     if 'picture' in login_session:
         del login_session['picture']
 
@@ -64,19 +78,42 @@ def cleanUpGoogle():
 # Routing requests
 #
 
+#
+# General logging in, save some state information regarding
+# the user then redirect
+#
 @app.route('/login')
 def showLogin():
     login_session['state'] = str(uuid.uuid4())
     return render_template('login.html', STATE=login_session['state'])
 
+#
+# General logout. Determine what social app was used to login and
+# then redirect to its logout
+#
 @app.route('/logout')
 def logout():
+    #
+    # Are they logged in?
+    #
     if 'login_social' not in login_session:
-        return redirect('/gdisconnect')
-
+        cleanupLogin()
+        return redirect('/')
+    #
+    # Is it google+?
+    #
     if login_session['login_social'] == 'google':
         return redirect('/gdisconnect')
+    #
+    # Should not get here
+    #
+    print "Warning could not determine login info to logout"
+    cleanupLogin()
+    return redirect('/')
 
+#
+# Google+ logging in
+#
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
     # Validate state token
@@ -156,6 +193,9 @@ def gconnect():
     output += '!</h1>'
     return output
 
+#
+# google+ logging out
+#
 @app.route('/gdisconnect')
 def gdisconnect():
     if 'access_token' not in login_session:
@@ -177,35 +217,40 @@ def gdisconnect():
     print 'result is '
     print result
     if result['status'] == '200':
-	cleanUpGoogle()
+        cleanUpGoogle()
         return redirect('/')
     else:
         cleanUpGoogle()
-    	response = make_response(json.dumps('Failed to revoke token for given user.', 400))
-    	response.headers['Content-Type'] = 'application/json'
-    	return response
+        print 'Failed to logout of google+'
+        return redirect('/')
 
-
+#
+# Return JSON representation of a catalog category
+#
 @app.route('/catalog/<int:category_id>/items/JSON')
 def categoryItemJSON(category_id):
-#    restaurant = session.query(Category).filter_by(id=category_id).one()
     items = session.query(Item).filter_by(
         category_id=category_id).all()
     return jsonify(Item=[i.serialize for i in items])
 
-
+#
+# Return JSON representation of a catalog category's item
+#
 @app.route('/catalog/<int:category_id>/item/<int:item_id>/JSON')
 def itemJSON(category_id, item_id):
     item = session.query(Item).filter_by(id=item_id).one()
     return jsonify(item=item.serialize)
 
-
+#
+# Return JSON representation of the catalog
 @app.route('/categories/JSON')
 def categoryJSON():
     category = session.query(Category).all()
     return jsonify(categories=[r.serialize for r in category])
 
-# Show all categories
+#
+# Home page entry
+#
 @app.route('/')
 @app.route('/catalog/')
 def showCatalog():
@@ -214,6 +259,9 @@ def showCatalog():
     mostrecent = session.query(Item).all()
     return render_template('categories.html', categories=categories, items=mostrecent, category=None)
 
+#
+# Create a new category
+#
 @app.route('/category/new/', methods=['GET', 'POST'])
 def newCategory():
     if request.method == 'POST':
@@ -223,7 +271,9 @@ def newCategory():
         return redirect(url_for('showCatalog'))
     else:
         return render_template('newCategory.html')
-
+#
+# Edit category name
+#
 @app.route('/catalog/<int:category_id>/edit/', methods=['GET', 'POST'])
 def editCategory(category_id):
     editedCategory = session.query(
@@ -236,6 +286,9 @@ def editCategory(category_id):
         return render_template(
             'editCategory.html', category=editedCategory)
 
+#
+# Delete a category
+#
 @app.route('/catalog/<int:category_id>/delete/', methods=['GET', 'POST'])
 def deleteCategory(category_id):
     categoryToDelete = session.query(
@@ -248,8 +301,9 @@ def deleteCategory(category_id):
     else:
         return render_template(
             'deleteCategory.html', category=categoryToDelete)
-
+#
 # Show items from a category
+#
 @app.route('/category/<int:category_id>/')
 @app.route('/category/<int:category_id>/items/')
 def showItems(category_id):
@@ -259,6 +313,9 @@ def showItems(category_id):
         category_id=category_id).all()
     return render_template('categories.html', categories=categories, items=items, category=category) 
 
+#
+# Create a new item for a category
+#
 @app.route(
     '/catalog/<int:category_id>/items/new/', methods=['GET', 'POST'])
 def newItem(category_id):
@@ -273,6 +330,9 @@ def newItem(category_id):
     else:
         return render_template('newItem.html', category=category)
 
+#
+# Edit a category item
+#
 @app.route('/catalog/<int:category_id>/items/<int:item_id>/edit/',
            methods=['GET', 'POST'])
 def editItem(category_id, item_id):
@@ -290,6 +350,9 @@ def editItem(category_id, item_id):
         return render_template(
             'editItem.html', category=category, item=editedItem)
 
+#
+# Delete a cateogry item
+#
 @app.route('/catalog/<int:category_id>/items/<int:item_id>/delete',
            methods=['GET', 'POST'])
 def deleteItem(category_id, item_id):
@@ -302,7 +365,10 @@ def deleteItem(category_id, item_id):
     else:
         return render_template('deleteItem.html', item=itemToDelete, category=category)
 
+#
+# Startup the flask application
+#
 if __name__ == '__main__':
     app.debug = True
     app.secret_key = 'fkldsjfeofjeijfewljfkds'
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=8000)
