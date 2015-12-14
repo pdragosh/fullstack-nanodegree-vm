@@ -8,25 +8,31 @@
         <div><span class="arrow-down"></span></div>
         <div id="tbox1">
             <div class="title">
-                <h2>Categories <a href="/category/new"> <i class="ui-icon ui-icon-plusthick" style="float:right"></i></a></h2>
+                {% if not session.username %}
+                <h2>Categories</h2>
+                {% else %}
+                <h2>Categories <a href="/category/new"> <i class="ui-icon ui-icon-plusthick" style="float:right" title="Add a new category"></i></a></h2>
+                {% endif %}
             </div>
             {% for category in categories %}
                 {% if not session.username %}
-                    <p>{{ category.name }}</p>
+                    <a href="/category/{{ category.id}}/items" title="View {{ category.name }} items">
+                        {{ category.name }}
+                    </a>
                 {% else %}
-                <nobr>
-                <a href="/category/{{ category.id}}/items">
-                {{ category.name }}
-                </a>
-                <a href="/catalog/{{ category.id}}/delete">
-                    <i class="ui-icon ui-icon-trash" style="float:right">  </i>
-                </a>
-                <a href="/catalog/{{ category.id}}/edit">
-                    <i class="ui-icon ui-icon-wrench" style="float:right">  </i>
-                </a>
-                </nobr>
-                <br>
+                    <nobr>
+                        <a href="/category/{{ category.id}}/items" title="View {{ category.name }} items">
+                            {{ category.name }}
+                        </a>
+                        <a href="/catalog/{{ category.id}}/delete">
+                            <i class="ui-icon ui-icon-trash" style="float:right">  </i>
+                        </a>
+                        <a href="/catalog/{{ category.id}}/edit">
+                            <i class="ui-icon ui-icon-wrench" style="float:right">  </i>
+                        </a>
+                    </nobr>
                {% endif %}
+               <br>
             {% endfor %}
         </div>
         
@@ -34,7 +40,11 @@
         <div id="tbox2">
             <div class="title">
                 {% if category is not none %}
-                <h2>{{ category.name }} Items <a href="/catalog/{{ category.id}}/items/new"> <i class="ui-icon ui-icon-plusthick" style="float:right"></i></a></h2>
+                    {% if not session.username %}
+                        <h2>{{ category.name }} Items</h2>
+                    {% else %}
+                        <h2>{{ category.name }} Items <a href="/catalog/{{ category.id}}/items/new"> <i class="ui-icon ui-icon-plusthick" style="float:right"  title="Add a new item"></i></a></h2>
+                    {% endif %}
                 {% else %}
                     <h2>Most Recent</h2>
                 {% endif %}
