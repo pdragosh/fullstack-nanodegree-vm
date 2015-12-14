@@ -243,9 +243,11 @@ def itemJSON(category_id, item_id):
 
 #
 # Return JSON representation of the catalog
+#
 @app.route('/categories/JSON')
 def categoryJSON():
-    category = session.query(Category).all()
+    category = session.query(Category, Item).join(Item).all()
+    print category
     return jsonify(categories=[r.serialize for r in category])
 
 #
@@ -257,12 +259,16 @@ def showCatalog():
     categories = session.query(Category).all()
     #TODO filter most recent
     mostrecent = session.query(Item).all()
-    return render_template('categories.html', categories=categories, items=mostrecent, category=None)
+    return render_template('categories.html',
+                           categories=categories,
+                           items=mostrecent,
+                           category=None,
+                           current_item=None)
 
 #
 # Create a new category
 #
-@app.route('/category/new/', methods=['GET', 'POST'])
+@app.route('/catalog/new/', methods=['GET', 'POST'])
 def newCategory():
     if request.method == 'POST':
         newCategory = Category(name=request.form['name'])
@@ -304,14 +310,30 @@ def deleteCategory(category_id):
 #
 # Show items from a category
 #
-@app.route('/category/<int:category_id>/')
-@app.route('/category/<int:category_id>/items/')
+@app.route('/catalog/<int:category_id>/')
+@app.route('/catalog/<int:category_id>/items/')
 def showItems(category_id):
     categories = session.query(Category).all()
     category = session.query(Category).filter_by(id=category_id).one()
     items = session.query(Item).filter_by(
         category_id=category_id).all()
-    return render_template('categories.html', categories=categories, items=items, category=category) 
+    return render_template('categories.html', categories=categories,
+                           items=items, category=category,
+                           current_item=None)
+
+#
+# Show individual item
+#
+@app.route('/catalog/<int:category_id>/item/<int:item_id>')
+def showItem(category_id, item_id):
+    print 'show item'
+    categories = session.query(Category).all()
+    category = session.query(Category).filter_by(id=category_id).one()
+    current_item = session.query(Item).filter_by(id=item_id).one()
+    items = session.query(Item).filter_by(category_id=category_id).all()
+    print current_item.title
+    return render_template('categories.html', categories=categories,
+                           items=items, category=category, current_item=current_item)
 
 #
 # Create a new item for a category
@@ -321,8 +343,9 @@ def showItems(category_id):
 def newItem(category_id):
     category = session.query(Category).filter_by(id=category_id).one()
     if request.method == 'POST':
-        newItem = Item(title=request.form['title'], description=request.form[
-                           'description'], category_id=category_id)
+        newItem = Item(title=request.form['title'],
+                       description=request.form['description'],
+                       category_id=category_id)
         session.add(newItem)
         session.commit()
 

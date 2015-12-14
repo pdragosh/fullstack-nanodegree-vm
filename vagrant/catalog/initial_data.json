@@ -3,21 +3,25 @@
 		{
 		"id" : 1,
 		"name" : "Soccer",
+		"user" : "foo@example.com",
 		"Item" : [
 			{
-				"category" : 1,
+				"id" : 1,
 				"title" : "Soccer Shoes",
-				"description" : "Shoes for soccer"
+				"description" : "Shoes for soccer",
+                                "user" : "foo@example.com"
 			}
 		]
 		},
 		{
 		"id" : 2,
-		"name" : "Basketball"
+		"name" : "Basketball",
+		"user" : "foo@example.com"
 		},
 		{
 		"id" : 3,
-		"name" : "Baseball"
+		"name" : "Baseball",
+		"user" : "foo@example.com"
 		}
 	]
 }

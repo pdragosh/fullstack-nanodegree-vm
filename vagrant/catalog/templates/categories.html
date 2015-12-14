@@ -11,17 +11,17 @@
                 {% if not session.username %}
                 <h2>Categories</h2>
                 {% else %}
-                <h2>Categories <a href="/category/new"> <i class="ui-icon ui-icon-plusthick" style="float:right" title="Add a new category"></i></a></h2>
+                <h2>Categories <a href="/catalog/new"> <i class="ui-icon ui-icon-plusthick" style="float:right" title="Add a new category"></i></a></h2>
                 {% endif %}
             </div>
             {% for category in categories %}
                 {% if not session.username %}
-                    <a href="/category/{{ category.id}}/items" title="View {{ category.name }} items">
+                    <a href="/catalog/{{ category.id}}/items" title="View {{ category.name }} items">
                         {{ category.name }}
                     </a>
                 {% else %}
                     <nobr>
-                        <a href="/category/{{ category.id}}/items" title="View {{ category.name }} items">
+                        <a href="/catalog/{{ category.id}}/items" title="View {{ category.name }} items">
                             {{ category.name }}
                         </a>
                         <a href="/catalog/{{ category.id}}/delete">
@@ -50,21 +50,28 @@
                 {% endif %}
             </div>
             {% for item in items %}
-            {% if not session.username %}
-            <p>{{ category.name }}</p>
-            {% else %}
-            <nobr>
-                {{ item.title }}
-                <a href="/catalog/{{ item.category_id}}/items/{{ item.id }}/delete">
-                    <i class="ui-icon ui-icon-trash" style="float:right">  </i>
-                </a>
-                <a href="/catalog/{{ item.category_id}}/items/{{ item.id }}/edit">
-                    <i class="ui-icon ui-icon-wrench" style="float:right">  </i>
-                </a>
-            </nobr>
-            <br>
-            {% endif %}
+                <a href="/catalog/{{ item.category_id }}/item/{{ item.id}}">{{ item.title }}</a>
+                {% if session.username %}
+                    <nobr>
+                        <a href="/catalog/{{ item.category_id}}/items/{{ item.id }}/delete">
+                            <i class="ui-icon ui-icon-trash" style="float:right">  </i>
+                        </a>
+                        <a href="/catalog/{{ item.category_id}}/items/{{ item.id }}/edit">
+                            <i class="ui-icon ui-icon-wrench" style="float:right">  </i>
+                        </a>
+                    </nobr>
+                {% endif %}
+                <br>
             {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if current_item is not none %}
+        <div id="tbox3">
+            <div class="title">
+                <H2>{{ current_item.title }}</H2>
+            </div>
+            {{ current_item.description }}
         </div>
         {% endif %}
 
