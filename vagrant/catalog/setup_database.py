@@ -37,7 +37,7 @@ class Item(Base):
     title = Column(String(80), nullable=False)
     description = Column(String(250))
     created = Column(DateTime, nullable=False, default=_now)
-    user = Column(String(80))
+    user = Column(String(80), nullable=False)
     category_id = Column(Integer, ForeignKey('Category.id'))
     category = relationship(Category)
 
