@@ -227,11 +227,11 @@ def gdisconnect():
 #
 # Return JSON representation of a catalog category
 #
-@app.route('/catalog/<int:category_id>/items/JSON')
+@app.route('/catalog/<int:category_id>/JSON')
 def categoryItemJSON(category_id):
     items = session.query(Item).filter_by(
         category_id=category_id).all()
-    return jsonify(Item=[i.serialize for i in items])
+    return jsonify(Items=[i.serialize for i in items])
 
 #
 # Return JSON representation of a catalog category's item
@@ -244,11 +244,16 @@ def itemJSON(category_id, item_id):
 #
 # Return JSON representation of the catalog
 #
-@app.route('/categories/JSON')
+@app.route('/catalog/JSON')
 def categoryJSON():
-    category = session.query(Category, Item).join(Item).all()
-    print category
-    return jsonify(categories=[r.serialize for r in category])
+    data = []
+    categories = session.query(Category).all()
+    for c in categories:
+        cat = c.serialize
+        items = session.query(Item).filter_by(category_id=c.id).all()
+        cat['Items'] = [i.serialize for i in items]
+        data.append(cat)
+    return jsonify(categories=data)
 
 #
 # Home page entry
@@ -257,7 +262,6 @@ def categoryJSON():
 @app.route('/catalog/')
 def showCatalog():
     categories = session.query(Category).all()
-    #TODO filter most recent
     mostrecent = session.query(Item).order_by(Item.created.desc()).limit(10).all()
     return render_template('categories.html',
                            categories=categories,

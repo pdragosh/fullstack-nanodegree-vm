@@ -25,7 +25,7 @@ class Category(Base):
         return {
             'id': self.id,
             'name': self.name,
-            'created': self.created,
+            'created': self.created.strftime("%Y-%m-%d %H:%M:%S"),
             'user': self.user
         }
 
@@ -48,7 +48,7 @@ class Item(Base):
             'id': self.id,
             'title': self.title,
             'description': self.description,
-            'created': self.created,
+            'created': self.created.strftime("%Y-%m-%d %H:%M:%S"),
             'user': self.user,
             'category_id': self.category_id
         }

@@ -9,10 +9,12 @@
         <div id="tbox1">
             <div class="title">
                 {% if not session.username %}
-                <h2>Categories</h2>
+                <h2>Categories
                 {% else %}
-                <h2>Categories <a href="/catalog/new"> <i class="ui-icon ui-icon-plusthick" style="float:right" title="Add a new category"></i></a></h2>
+                <h2>Categories <a href="/catalog/new"> <i class="ui-icon ui-icon-plusthick" style="float:right" title="Add a new category"></i></a>
                 {% endif %}
+                <a href="/catalog/JSON"> <i class="ui-icon ui-icon-arrowthickstop-1-s" style="float:right" title="Download Categories"></i></a>
+                </h2>
             </div>
             {% for category in categories %}
             <nobr>
@@ -37,10 +39,12 @@
             <div class="title">
                 {% if category is not none %}
                     {% if not session.username %}
-                        <h2>{{ category.name }} Items</h2>
+                        <h2>{{ category.name }} Items
                     {% else %}
-                        <h2>{{ category.name }} Items <a href="/catalog/{{ category.id}}/items/new"> <i class="ui-icon ui-icon-plusthick" style="float:right"  title="Add a new item"></i></a></h2>
+                        <h2>{{ category.name }} Items <a href="/catalog/{{ category.id}}/items/new"> <i class="ui-icon ui-icon-plusthick" style="float:right"  title="Add a new item"></i></a>
                     {% endif %}
+                    <a href="/catalog/{{ category.id}}/JSON"> <i class="ui-icon ui-icon-arrowthickstop-1-s" style="float:right" title="Download Items"></i></a>
+                    </h2>
                 {% else %}
                     <h2>Most Recent</h2>
                 {% endif %}
@@ -67,7 +71,7 @@
         {% if current_item is not none %}
         <div id="tbox3">
             <div class="title">
-                <H2>{{ current_item.title }}</H2>
+                <H2>{{ current_item.title }} <a href="/catalog/{{ current_item.category_id}}/item/{{ current_item.id }}/JSON"> <i class="ui-icon ui-icon-arrowthickstop-1-s" style="float:right" title="Download Item"></i></a></H2>
             </div>
             {{ current_item.description }}
         </div>
