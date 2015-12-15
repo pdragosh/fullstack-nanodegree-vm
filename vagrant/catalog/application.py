@@ -258,7 +258,7 @@ def categoryJSON():
 def showCatalog():
     categories = session.query(Category).all()
     #TODO filter most recent
-    mostrecent = session.query(Item).order_by(Item.created.desc()).all()
+    mostrecent = session.query(Item).order_by(Item.created.desc()).limit(10).all()
     return render_template('categories.html',
                            categories=categories,
                            items=mostrecent,
