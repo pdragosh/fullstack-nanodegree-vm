@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, jsonify, url_for, make_response
 from flask import session as login_session
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker
 from setup_database import Base, Category, Item
 from functools import wraps
@@ -258,7 +258,7 @@ def categoryJSON():
 def showCatalog():
     categories = session.query(Category).all()
     #TODO filter most recent
-    mostrecent = session.query(Item).all()
+    mostrecent = session.query(Item).order_by(Item.created.desc()).all()
     return render_template('categories.html',
                            categories=categories,
                            items=mostrecent,
@@ -271,7 +271,7 @@ def showCatalog():
 @app.route('/catalog/new/', methods=['GET', 'POST'])
 def newCategory():
     if request.method == 'POST':
-        newCategory = Category(name=request.form['name'])
+        newCategory = Category(name=request.form['name'], user=login_session['email'])
         session.add(newCategory)
         session.commit()
         return redirect(url_for('showCatalog'))
@@ -345,11 +345,14 @@ def newItem(category_id):
     if request.method == 'POST':
         newItem = Item(title=request.form['title'],
                        description=request.form['description'],
-                       category_id=category_id)
+                       category_id=category_id,
+                       user=login_session['email'])
         session.add(newItem)
         session.commit()
-
-        return redirect(url_for('showCatalog', category=category))
+        items = session.query(Item).filter_by(category_id=category_id).all()
+        categories = session.query(Category).all()
+        return render_template('categories.html', categories=categories,
+                           items=items, category=category, current_item=newItem)
     else:
         return render_template('newItem.html', category=category)
 
@@ -394,4 +397,4 @@ def deleteItem(category_id, item_id):
 if __name__ == '__main__':
     app.debug = True
     app.secret_key = 'fkldsjfeofjeijfewljfkds'
-    app.run(host='0.0.0.0', port=8000)
+    app.run(host='0.0.0.0', port=5000)

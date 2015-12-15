@@ -7,17 +7,17 @@
         <div class="title">
             <h3>Are you sure you want to delete Category {{ category.name }}??</h3>
             <P>
-            <h2>
-                
-                <form action="/catalog/{{ category.id }}/delete/" method = "post">
-                    <div class="form">
-                            <div class="padding-bottom"></div>
-                            <button type="submit" d="submit" type="submit">Delete</button>
-                            </div>
-                </form>
-                
-                <p><a href="/catalog">cancel</a></p>
+            <form action="/catalog/{{ category.id }}/delete/" method = "post">
+                <div class="form">
+                    <div class="padding-bottom"></div>
+                    <button type="submit" d="submit" type="submit">Delete</button>
                 </div>
+            </form>
+            <br>
+            <br>
+            <a href="/catalog">cancel</a></p>
+        </div>
     </div>
-    
-    {% endblock %}
+</div>
+
+{% endblock %}
