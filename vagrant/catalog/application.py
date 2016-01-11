@@ -273,6 +273,7 @@ def showCatalog():
 # Create a new category
 #
 @app.route('/catalog/new/', methods=['GET', 'POST'])
+@login_required
 def newCategory():
     if request.method == 'POST':
         newCategory = Category(name=request.form['name'], user=login_session['email'])
@@ -285,6 +286,7 @@ def newCategory():
 # Edit category name
 #
 @app.route('/catalog/<int:category_id>/edit/', methods=['GET', 'POST'])
+@login_required
 def editCategory(category_id):
     editedCategory = session.query(
         Category).filter_by(id=category_id).one()
@@ -300,6 +302,7 @@ def editCategory(category_id):
 # Delete a category
 #
 @app.route('/catalog/<int:category_id>/delete/', methods=['GET', 'POST'])
+@login_required
 def deleteCategory(category_id):
     categoryToDelete = session.query(
         Category).filter_by(id=category_id).one()
@@ -344,6 +347,7 @@ def showItem(category_id, item_id):
 #
 @app.route(
     '/catalog/<int:category_id>/items/new/', methods=['GET', 'POST'])
+@login_required
 def newItem(category_id):
     category = session.query(Category).filter_by(id=category_id).one()
     if request.method == 'POST':
@@ -365,6 +369,7 @@ def newItem(category_id):
 #
 @app.route('/catalog/<int:category_id>/items/<int:item_id>/edit/',
            methods=['GET', 'POST'])
+@login_required
 def editItem(category_id, item_id):
     category = session.query(Category).filter_by(id=category_id).one()
     editedItem = session.query(Item).filter_by(id=item_id).one()
@@ -381,10 +386,11 @@ def editItem(category_id, item_id):
             'editItem.html', category=category, item=editedItem)
 
 #
-# Delete a cateogry item
+# Delete a category item
 #
 @app.route('/catalog/<int:category_id>/items/<int:item_id>/delete',
            methods=['GET', 'POST'])
+@login_required
 def deleteItem(category_id, item_id):
     category = session.query(Category).filter_by(id=category_id).one()
     itemToDelete = session.query(Item).filter_by(id=item_id).one()
