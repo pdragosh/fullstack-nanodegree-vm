@@ -20,7 +20,7 @@ You would then cd to the directory of the project you are interested in running.
 
 ### Project 2
 
-For Project 2, the actual code is located in the [sub-directory](vagrant/tournament). While in the vagrant VM you would do the following:
+For Project 2, the actual code is located in the [vagrant/tournament sub-directory](vagrant/tournament). While in the vagrant VM you would do the following:
 
 ```
 vagrant-ssh-prompt> cd /vagrant/tournament
@@ -50,3 +50,35 @@ You should see the following output:
 8. After one match, players with one win are paired.
 Success!  All tests pass!
 ```
+### Project 3
+
+For Project 3, the actual code is located in the [vagrant/catalog sub-directory](vagrant/catalog). While in the vagrant VM you would do the following:
+
+```
+vagrant-ssh-prompt> cd /vagrant/catalog
+```
+
+The database needs to be setup first and optionally populated.
+
+```
+vagrant-ssh-prompt> python setup_database.py
+vagrant-ssh-prompt> python populate_database.py
+```
+
+To run the catalog web-server, do the following:
+
+```
+vagrant-ssh-prompt> python application.py
+```
+You should see the output such as:
+
+```
+* Running on http://0.0.0.0:5000/
+* Restarting with reloader
+```
+
+Open a web browser and type in the url: http://0.0.0.0:5000/
+
+You should be able to view the categories in the catalog and any pre-loaded items. In addition, you can download the JSON representation of either all the categories, items in a category or an item itself.
+
+If you chose to login (click the "login" link on the home page), then you can add categories and items. For those categories and items, you can edit or delete them.
